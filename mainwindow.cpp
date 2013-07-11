@@ -26,12 +26,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+
     timer = new QTimer(this);
      connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 //im_io->data_array = (byte **)malloc(im_io->height * sizeof(void *));
 //imagebuffers = (unsigned char**)malloc(NUM_THREADS * sizeof(void *));
     imageCnt = 0;
     ui->setupUi(this);
+        ui->delayms->setText("Delay 0 ms");
 QImage image;
          image.load("/home/bcheng/tt4.jpg");
 //          QImage image(300, 300, QImage::Format_RGB32);
@@ -53,11 +55,11 @@ int w2 = imageObject.width();
 MainWindow::~MainWindow()
 {
     if(timer->isActive()) timer->stop();
-    for (int i=0; i<NUM_THREADS; ++i) {
-        if(imagebuffers[i]!=NULL){
-            free(imagebuffers[i]);
-        }
-    }
+//    for (int i=0; i<NUM_THREADS; ++i) {
+//        if(imagebuffers[i]!=NULL){
+//            free(imagebuffers[i]);
+//        }
+//    }
 //    if(imagebuffers!=NULL){
 //        free(imagebuffers);
 //    }
@@ -66,6 +68,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
+
+process(threadDelay);
+}
+
+
+void MainWindow::start()
+{
+
+}
+
+void MainWindow::process(int delay)
+{
+threadDelay=0;
     if(timer->isActive()) timer->stop();
     QString qsthreadNumber = ui->threadNumber->text();
      bool check;
@@ -89,6 +104,7 @@ qDebug()<<"threadNumber"<<threadNumber<<"\n";
             thr[i]->setParam(i,imageObject.width(),imageObject.height(),imageObject.bytesPerLine()/imageObject.width(),imagebuffers[i]);
                 thr[i]->start();
                 qDebug()<<"started"<<i<<"\n";
+                if (delay>0) usleep(delay*1000);
          }
 
          for (int i=0; i<threadNumber; ++i) {
@@ -97,37 +113,10 @@ qDebug()<<"threadNumber"<<threadNumber<<"\n";
          }
          //int imageSize = imageObject.height() * imageObject.bytesPerLine();
 
-         memcpy (imageObject.bits() ,imagebuffers[4], imageSize );
-   MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
-
+//         memcpy (imageObject.bits() ,imagebuffers[0], imageSize );
+//   MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
+ ui->status->setText("Done");
     timer->start(1000);
-//    QThread* thread = new QThread;
-//    Worker *worker = new Worker;
-//    connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
-
-//    //obj is a pointer to a QObject that will trigger the work to start. It could just be this
-//   // connect(obj, SIGNAL(startWork()), worker, SLOT(doWork()));
-//    worker->moveToThread(thread);
-//    thread->start();
-//    //obj will need to
-//  //  ui->label->setPixmap(imageObject);
-}
-//void *TaskCode(void *argument)
-void MainWindow::start()
-{
-  //  if(*(imagebuffers+0)!=NULL){
-  //              *(imagebuffers+0) = (unsigned char *)malloc(imageSize);
-    //            }
-   // int imageSize = imageObject.height() * imageObject.bytesPerLine();
-  //  unsigned char* imagebuffer = (unsigned char *)argument;
-
-//memcpy ( imagebuffer, imageObject.bits(), imageSize );
- //   process(imagebuffer);
-}
-
-void MainWindow::process(unsigned char *pImage)
-{
-
 
  }
 
@@ -165,3 +154,23 @@ void MainWindow::update()
 MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
 
  }
+
+void MainWindow::on_horizontalSlider_sliderMoved(int position)
+{
+
+}
+
+void MainWindow::on_horizontalSlider_sliderReleased()
+{
+
+}
+
+void MainWindow::on_horizontalSlider_valueChanged(int value)
+{
+    qDebug()<<"position="<<value<<"\n";
+    QString qstr;
+    qstr.sprintf("Delay %d ms", value);
+    ui->delayms->setText(qstr);
+    threadDelay = value;
+ //   process(value);
+}

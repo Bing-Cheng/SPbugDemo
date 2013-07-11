@@ -16,6 +16,7 @@ public:
 int threadNumber;
 int imageCnt;
 QTimer *timer ;
+int threadDelay;
 unsigned char* imagebuffers[NUM_THREADS];
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -29,10 +30,16 @@ private slots:
     void update();
 
  void start();
+ void on_horizontalSlider_sliderMoved(int position);
+
+ void on_horizontalSlider_sliderReleased();
+
+ void on_horizontalSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
 
-    void process(unsigned char *pImage);
+    void process(int delay);
 };
 
 #endif // MAINWINDOW_H
