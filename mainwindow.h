@@ -12,6 +12,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
+     QImage imageObject;
+int threadNumber;
+int imageCnt;
+unsigned char* imagebuffers[5];
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
@@ -20,9 +24,12 @@ private slots:
 
     void on_LoadImage_clicked();
 
+    void on_NextImage_clicked();
+
+ void start();
 private:
     Ui::MainWindow *ui;
-    void start();
+
     void process(unsigned char *pImage);
 };
 

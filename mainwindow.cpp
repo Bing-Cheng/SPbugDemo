@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 
 #include <QFileDialog>
+#include <QThread>
+#include <mythread.h>
 
 #include <iostream>
 #include <sys/types.h>
@@ -14,12 +16,18 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#define NUM_THREADS 5
+
 using namespace std;
-    QImage imageObject;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+//im_io->data_array = (byte **)malloc(im_io->height * sizeof(void *));
+//imagebuffers = (unsigned char**)malloc(NUM_THREADS * sizeof(void *));
+    imageCnt = 0;
     ui->setupUi(this);
 QImage image;
          image.load("/home/bcheng/tt4.jpg");
@@ -41,115 +49,83 @@ int w2 = imageObject.width();
 
 MainWindow::~MainWindow()
 {
+//    for (int i=0; i<NUM_THREADS; ++i) {
+//        if(*(imagebuffers+i)!=NULL){
+//            free(*(imagebuffers+i));
+//        }
+//    }
+//    if(imagebuffers!=NULL){
+//        free(imagebuffers);
+//    }
     delete ui;
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-    start();
 
-  //  ui->label->setPixmap(imageObject);
+//    MyThread *thr =
+//            new MyThread;
+//    thr->setParam(6);
+//        thr->start();
+
+//    pthread_t threads[NUM_THREADS];
+//         int thread_args[NUM_THREADS];
+//         int rc, i;
+    MyThread *thr[NUM_THREADS];
+   //  unsigned char *imagebuffers[NUM_THREADS];
+  int imageSize = imageObject.height() * imageObject.bytesPerLine();
+         /* create all threads */
+         for (int i=0; i<NUM_THREADS; ++i) {
+          //  thread_args[i] = i;
+            qDebug()<<"creating"<<i<<"\n";
+          //  if(*(imagebuffers+i)==NULL){
+                unsigned char * pTmp = (unsigned char *)malloc(imageSize);
+                 memcpy (pTmp,imageObject.bits() , imageSize );
+              //   im_io->data_array[row] = (byte *)(imagebuffer + rowbytes * row);
+                imagebuffers[i] =  pTmp;
+         //   }
+
+            thr[i]= new MyThread;
+            thr[i]->setParam(i,imageObject.width(),imageObject.height(),imageObject.bytesPerLine()/imageObject.width(),imagebuffers[i]);
+                thr[i]->start();
+                qDebug()<<"started"<<i<<"\n";
+         }
+
+         for (int i=0; i<NUM_THREADS; ++i) {
+           thr[i]->wait(10000);
+           qDebug()<<"stoped"<<i<<"\n";
+         }
+         //int imageSize = imageObject.height() * imageObject.bytesPerLine();
+
+         memcpy (imageObject.bits() ,imagebuffers[4], imageSize );
+   MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
+//    QThread* thread = new QThread;
+//    Worker *worker = new Worker;
+//    connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
+
+//    //obj is a pointer to a QObject that will trigger the work to start. It could just be this
+//   // connect(obj, SIGNAL(startWork()), worker, SLOT(doWork()));
+//    worker->moveToThread(thread);
+//    thread->start();
+//    //obj will need to
+//  //  ui->label->setPixmap(imageObject);
 }
-
+//void *TaskCode(void *argument)
 void MainWindow::start()
 {
-    int imageSize = imageObject.height() * imageObject.bytesPerLine();
-    unsigned char* imagebuffer = (unsigned char *)malloc(imageSize);
+  //  if(*(imagebuffers+0)!=NULL){
+  //              *(imagebuffers+0) = (unsigned char *)malloc(imageSize);
+    //            }
+   // int imageSize = imageObject.height() * imageObject.bytesPerLine();
+  //  unsigned char* imagebuffer = (unsigned char *)argument;
 
-memcpy ( imagebuffer, imageObject.bits(), imageSize );
-    process(imagebuffer);
+//memcpy ( imagebuffer, imageObject.bits(), imageSize );
+ //   process(imagebuffer);
 }
 
 void MainWindow::process(unsigned char *pImage)
 {
-    HIsEnhance ISObject;
-      char guid[]  = "3c3c8316-50d0-948d-ab14-6717e0649e1a";
 
-    ISObject = IsEnhanceCreateFromGUID(guid);
-
-    char str_buffer[256];
-     IsEnhancePars newPars;
-     IsEnhanceProcessPars newProcessPars;
-      int width =imageObject.width();
-      int height =imageObject.height();
-      int components =imageObject.bytesPerLine()/width;
-      IsEnhanceImage IsImage;
-        IsImage.height = height;
-        IsImage.width = width;
-        IsImage.bytesperline = imageObject.bytesPerLine();
-        IsImage.imagedata = pImage;
-        IsImage.colorOrder = IS_RGB;
-        IsImage.memOrg = IS_PixelInterleaved;
-        //Setting the default metadata
-        IsImage.metadata.flash = 16;
-        IsImage.metadata.lightsource = 0;
-        IsImage.metadata.sharpness = 0;
-        IsImage.metadata.contrast = 0;
-        IsImage.metadata.saturation = 0;
-        IsImage.metadata.isospeedratings = 200;
-        IsImage.metadata.shutterspeed = 5.0;
-        IsImage.metadata.exposuretime = 0.03333;
-        IsImage.metadata.aperture = 3.5;
-        IsImage.metadata.fnumber = 3.0;
-        IsImage.metadata.brightness = 1.0;
-
-        IsImage.metadata.is_enhanced = 0;  // 0 = no, >0 = yes. Can be used to avoid repeated
-        IsImage.metadata.filesize = 0;  // image file size on disk, 0 if not available
-        IsImage.metadata.extResizeFac = 1.0; // factor indicating if image has been resized previously, used e.g.
-        // to adapt global sharpening. Set this value to <= 0 or 1.0 if no
-        // information is available or the image has not been resized
-        // (usual case). A previous up- or down-sampling respectively
-        // corresponds to to a factor larger or smaller than 1.0.
-
-        // input ICC profile (embedded profile of input image)
-        IsImage.metadata.pIccInProfileData = NULL;  // should contain embedded ICC
-        IsImage.metadata.iccInProfileDataSize = 0; // = 0  no emb. ICC profile associated with this image
-        // > 0  specifies ICC profile size located at pIccInProfileData
-        // ICC profile to be used for output image
-        IsImage.metadata.pIccOutProfileData = NULL;
-        IsImage.metadata.iccOutProfileDataSize = 0;
-        IsImage.metadata.pAlphaChannelData = 0;  // set to 0 if no alpha channel is avail.
-        IsImage.metadata.alphaChannelDataSize = 0; // set to width*height, if alpha ch. avail.
-
-          char str_buffer_dir[30];
-          int cnt=2;
-          sprintf(str_buffer_dir,"/home/bcheng/d/dir%d/Pars.bin",cnt);
-
-      ifstream ifs1(str_buffer_dir, ios::binary);
-      ifs1.read((char *)&newPars, sizeof(newPars));
-      ifs1.close();
-
-
-          sprintf(str_buffer_dir,"/home/bcheng/d/dir%d/PPar.bin",cnt);
-          fprintf(stderr,str_buffer_dir);
-  //        fprintf(stderr,"\n pid: %d; threadID=%d; ISObject= %d; bcheng2\n", getpid() , pthread_self(),ISObject);
-
-    //          pthread_mutex_lock (&mutexsum);
-          newPars.gpars.brstrength=1;
-      IsEnhanceSetPars(ISObject, &newPars);
-      ifstream ifs3(str_buffer_dir, ios::binary);
-      ifs3.read((char *)&newProcessPars, sizeof(newProcessPars));
-      ifs3.close();
-
-
-
-             //              fprintf(stderr,"\nb pid: %d; threadID=%d; ISObject=%d;\n", getpid() , pthread_self(), ISObject);
-       int retValue = IsEnhanceProcessAndResizeImage(ISObject, &IsImage, &IsImage, &newProcessPars);
-       fprintf(stderr,"retValue=%d\n",retValue);
-       if (retValue < 0)
-         {
-           char errMsg[IS_MAXPATH];
-           IsEnhanceGetLastError(ISObject, errMsg);
-           fprintf(stderr, "%s\n", errMsg);
-         }
-       // fprintf(stderr,"a pid: %d; threadID=%d; ISObject=%d; retValue=%d\n", getpid() , pthread_self(),ISObject, retValue);
-       //  pthread_mutex_unlock (&mutexsum);
-       int imageSize = imageObject.height() * imageObject.bytesPerLine();
-
-   memcpy (imageObject.bits() ,pImage , imageSize );
- ui->label->setPixmap(QPixmap::fromImage(imageObject));
-
-              if(ISObject) IsEnhanceDestroy (ISObject);
 
  }
 
@@ -165,4 +141,16 @@ void MainWindow::on_LoadImage_clicked()
 
     ui->label->setPixmap(QPixmap::fromImage(imageObject));
 
+}
+
+void MainWindow::on_NextImage_clicked()
+{
+    int imageSize = imageObject.height() * imageObject.bytesPerLine();
+   imageCnt++;
+   if (imageCnt==NUM_THREADS) imageCnt=0;
+//    memcpy (imageObject.bits() ,*(imagebuffers+imageCnt) , imageSize );
+//  ui->label->setPixmap(QPixmap::fromImage(imageObject));
+
+    memcpy (imageObject.bits() ,imagebuffers[imageCnt], imageSize );
+MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
 }
