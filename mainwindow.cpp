@@ -3,6 +3,7 @@
 
 #include <QFileDialog>
 #include <QThread>
+#include <QTimer>
 #include <mythread.h>
 
 #include <iostream>
@@ -17,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NUM_THREADS 5
+
 
 using namespace std;
 
@@ -25,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    timer = new QTimer(this);
+     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 //im_io->data_array = (byte **)malloc(im_io->height * sizeof(void *));
 //imagebuffers = (unsigned char**)malloc(NUM_THREADS * sizeof(void *));
     imageCnt = 0;
@@ -49,11 +52,12 @@ int w2 = imageObject.width();
 
 MainWindow::~MainWindow()
 {
-//    for (int i=0; i<NUM_THREADS; ++i) {
-//        if(*(imagebuffers+i)!=NULL){
-//            free(*(imagebuffers+i));
-//        }
-//    }
+    if(timer->isActive()) timer->stop();
+    for (int i=0; i<NUM_THREADS; ++i) {
+        if(imagebuffers[i]!=NULL){
+            free(imagebuffers[i]);
+        }
+    }
 //    if(imagebuffers!=NULL){
 //        free(imagebuffers);
 //    }
@@ -62,20 +66,16 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-
-//    MyThread *thr =
-//            new MyThread;
-//    thr->setParam(6);
-//        thr->start();
-
-//    pthread_t threads[NUM_THREADS];
-//         int thread_args[NUM_THREADS];
-//         int rc, i;
-    MyThread *thr[NUM_THREADS];
+    if(timer->isActive()) timer->stop();
+    QString qsthreadNumber = ui->threadNumber->text();
+     bool check;
+    threadNumber = qsthreadNumber.toInt(&check);
+qDebug()<<"threadNumber"<<threadNumber<<"\n";
+    MyThread *thr[threadNumber];
    //  unsigned char *imagebuffers[NUM_THREADS];
   int imageSize = imageObject.height() * imageObject.bytesPerLine();
          /* create all threads */
-         for (int i=0; i<NUM_THREADS; ++i) {
+         for (int i=0; i<threadNumber; ++i) {
           //  thread_args[i] = i;
             qDebug()<<"creating"<<i<<"\n";
           //  if(*(imagebuffers+i)==NULL){
@@ -91,7 +91,7 @@ void MainWindow::on_pushButton_clicked()
                 qDebug()<<"started"<<i<<"\n";
          }
 
-         for (int i=0; i<NUM_THREADS; ++i) {
+         for (int i=0; i<threadNumber; ++i) {
            thr[i]->wait(10000);
            qDebug()<<"stoped"<<i<<"\n";
          }
@@ -99,6 +99,8 @@ void MainWindow::on_pushButton_clicked()
 
          memcpy (imageObject.bits() ,imagebuffers[4], imageSize );
    MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
+
+    timer->start(1000);
 //    QThread* thread = new QThread;
 //    Worker *worker = new Worker;
 //    connect(thread, SIGNAL(started()), worker, SLOT(doWork()));
@@ -129,6 +131,8 @@ void MainWindow::process(unsigned char *pImage)
 
  }
 
+
+
 void MainWindow::on_LoadImage_clicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -145,12 +149,19 @@ void MainWindow::on_LoadImage_clicked()
 
 void MainWindow::on_NextImage_clicked()
 {
+    if(timer->isActive()) timer->stop();
+    update();
+}
+
+void MainWindow::update()
+{
     int imageSize = imageObject.height() * imageObject.bytesPerLine();
    imageCnt++;
-   if (imageCnt==NUM_THREADS) imageCnt=0;
+   if (imageCnt==threadNumber) imageCnt=0;
 //    memcpy (imageObject.bits() ,*(imagebuffers+imageCnt) , imageSize );
 //  ui->label->setPixmap(QPixmap::fromImage(imageObject));
 
     memcpy (imageObject.bits() ,imagebuffers[imageCnt], imageSize );
 MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
-}
+
+ }

@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#define NUM_THREADS 50
 namespace Ui {
 class MainWindow;
 }
@@ -15,7 +15,8 @@ public:
      QImage imageObject;
 int threadNumber;
 int imageCnt;
-unsigned char* imagebuffers[5];
+QTimer *timer ;
+unsigned char* imagebuffers[NUM_THREADS];
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
@@ -25,6 +26,7 @@ private slots:
     void on_LoadImage_clicked();
 
     void on_NextImage_clicked();
+    void update();
 
  void start();
 private:
