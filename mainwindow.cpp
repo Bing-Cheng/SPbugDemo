@@ -47,9 +47,10 @@ QImage image;
 //             }
 //         }
 imageObject= image.convertToFormat(QImage::Format_RGB888, Qt::AutoColor);
+imageObjectOut= image.convertToFormat(QImage::Format_RGB888, Qt::AutoColor);
 int w1= image.width();
 int w2 = imageObject.width();
-         ui->label->setPixmap(QPixmap::fromImage(imageObject));
+         ui->label->setPixmap(QPixmap::fromImage(imageObjectOut));
 }
 
 MainWindow::~MainWindow()
@@ -85,6 +86,15 @@ threadDelay=0;
     QString qsthreadNumber = ui->threadNumber->text();
      bool check;
     threadNumber = qsthreadNumber.toInt(&check);
+
+    QString qsBrightness= ui->brightness->text();
+    float fBrightness = qsBrightness.toFloat(&check);
+
+    QString qsLocalShadow = ui->localShadow->text();
+float fLocalShadow= qsLocalShadow.toFloat(&check);
+
+    QString qsBackLit= ui->backLit->text();
+float fBackLit= qsBackLit.toFloat(&check);
 qDebug()<<"threadNumber"<<threadNumber<<"\n";
     MyThread *thr[threadNumber];
    //  unsigned char *imagebuffers[NUM_THREADS];
@@ -101,7 +111,7 @@ qDebug()<<"threadNumber"<<threadNumber<<"\n";
          //   }
 
             thr[i]= new MyThread;
-            thr[i]->setParam(i,imageObject.width(),imageObject.height(),imageObject.bytesPerLine()/imageObject.width(),imagebuffers[i]);
+            thr[i]->setParam(i,imageObject.width(),imageObject.height(),imageObject.bytesPerLine()/imageObject.width(),fBrightness,fLocalShadow,fBackLit,imagebuffers[i]);
                 thr[i]->start();
                 qDebug()<<"started"<<i<<"\n";
                 if (delay>0) usleep(delay*1000);
@@ -147,11 +157,14 @@ void MainWindow::update()
     int imageSize = imageObject.height() * imageObject.bytesPerLine();
    imageCnt++;
    if (imageCnt==threadNumber) imageCnt=0;
+   QString qsCurrentImage;
+   qsCurrentImage.sprintf("image %d",imageCnt);
+   ui->currentImage->setText(qsCurrentImage);
 //    memcpy (imageObject.bits() ,*(imagebuffers+imageCnt) , imageSize );
 //  ui->label->setPixmap(QPixmap::fromImage(imageObject));
 
-    memcpy (imageObject.bits() ,imagebuffers[imageCnt], imageSize );
-MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObject));
+    memcpy (imageObjectOut.bits() ,imagebuffers[imageCnt], imageSize );
+MainWindow::ui->label->setPixmap(QPixmap::fromImage(imageObjectOut));
 
  }
 

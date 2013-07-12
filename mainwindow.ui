@@ -24,15 +24,15 @@
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel1</string>
+     <string>image</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>50</x>
       <y>0</y>
-      <width>97</width>
+      <width>61</width>
       <height>31</height>
      </rect>
     </property>
@@ -45,20 +45,20 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>97</width>
+      <width>41</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>Load Image</string>
+     <string>Load </string>
     </property>
    </widget>
    <widget class="QPushButton" name="NextImage">
     <property name="geometry">
      <rect>
-      <x>220</x>
+      <x>120</x>
       <y>0</y>
-      <width>97</width>
+      <width>41</width>
       <height>31</height>
      </rect>
     </property>
@@ -210,6 +210,29 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_6">
+    <property name="geometry">
+     <rect>
+      <x>190</x>
+      <y>0</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Current</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="currentImage">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>0</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
     </property>
    </widget>
   </widget>

@@ -13,6 +13,7 @@ class MainWindow : public QMainWindow
     
 public:
      QImage imageObject;
+     QImage imageObjectOut;
 int threadNumber;
 int imageCnt;
 QTimer *timer ;
