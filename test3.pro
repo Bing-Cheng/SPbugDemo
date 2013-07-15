@@ -20,11 +20,9 @@ LIBS+= -lpthread
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    worker.cpp \
     mythread.cpp
 
 HEADERS  += mainwindow.h \
-    worker.h \
     mythread.h
 
 FORMS    += mainwindow.ui

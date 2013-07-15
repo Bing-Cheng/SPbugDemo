@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #define NUM_THREADS 50
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -14,32 +14,30 @@ class MainWindow : public QMainWindow
 public:
      QImage imageObject;
      QImage imageObjectOut;
-int threadNumber;
-int imageCnt;
-QTimer *timer ;
-int threadDelay;
-unsigned char* imagebuffers[NUM_THREADS];
+    int threadNumber;
+    int imagePre;
+    int imageCnt;
+    QTimer *timer ;
+    QTimer *timer2 ;
+    int slideStep;
+    int threadDelay;
+    bool lockMutex;
+    static pthread_mutex_t* mutexsum;
+    unsigned char* imagebuffers[NUM_THREADS];
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     
 private slots:
     void on_pushButton_clicked();
-
     void on_LoadImage_clicked();
-
     void on_NextImage_clicked();
     void update();
-
- void start();
- void on_horizontalSlider_sliderMoved(int position);
-
- void on_horizontalSlider_sliderReleased();
-
- void on_horizontalSlider_valueChanged(int value);
+    void slideImage();
+    void on_horizontalSlider_valueChanged(int value);
+    void on_pushButton_pressed();
 
 private:
     Ui::MainWindow *ui;
-
     void process(int delay);
 };
 

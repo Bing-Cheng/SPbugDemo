@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1321</width>
-    <height>897</height>
+    <height>739</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <x>10</x>
       <y>50</y>
       <width>1301</width>
-      <height>791</height>
+      <height>741</height>
      </rect>
     </property>
     <property name="text">
@@ -202,9 +202,9 @@
    <widget class="QLabel" name="status">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>45</x>
       <y>30</y>
-      <width>66</width>
+      <width>131</width>
       <height>21</height>
      </rect>
     </property>
@@ -233,6 +233,19 @@
       <width>101</width>
       <height>31</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="lockBox">
+    <property name="geometry">
+     <rect>
+      <x>1220</x>
+      <y>40</y>
+      <width>95</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Lock</string>
     </property>
    </widget>
   </widget>
